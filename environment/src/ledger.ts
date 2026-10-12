@@ -4,19 +4,24 @@ export interface CreditEvent {
   amount: string // dollars, e.g. "10.50"
 }
 
-/** Applies credit events to per-account balances, tracked in integer cents. */
+/**
+ * Applies credit events to per-account balances.
+ *
+ * Known defects (this is the benchmark fixture an agent must fix):
+ * 1. Dollar amounts are summed as floating-point numbers, so balances drift after many
+ *    small credits instead of landing on an exact cent value.
+ * 2. The same event id can be replayed and will be applied again, double-crediting the
+ *    account — there is no idempotency guard.
+ */
 export class CreditLedger {
-  private balances = new Map<string, number>() // cents
-  private seenEventIds = new Set<string>()
+  private balances = new Map<string, number>()
 
   applyEvent(event: CreditEvent): number {
-    if (!this.seenEventIds.has(event.id)) {
-      const amountCents = Math.round(parseFloat(event.amount) * 100)
-      const current = this.balances.get(event.accountId) ?? 0
-      this.balances.set(event.accountId, current + amountCents)
-      this.seenEventIds.add(event.id)
-    }
-    return this.balances.get(event.accountId) ?? 0
+    const amount = parseFloat(event.amount)
+    const current = this.balances.get(event.accountId) ?? 0
+    const next = current + amount
+    this.balances.set(event.accountId, next)
+    return next
   }
 
   balanceOf(accountId: string): number {
