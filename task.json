@@ -1,0 +1,40 @@
+{
+  "schema_version": "1.0",
+  "task": {
+    "name": "d0ingc0des/credit-ledger-reconcile",
+    "version": "1",
+    "description": "Fix a non-idempotent, floating-point credit ledger reconciliation job.",
+    "keywords": ["ledger", "idempotency", "money", "fintech"]
+  },
+  "metadata": {
+    "title": "Credit ledger reconcile after retry",
+    "tags": {
+      "tools": ["vitest"],
+      "concepts": ["idempotency", "money-math"]
+    }
+  },
+  "instruction": "instruction.md",
+  "environment": {
+    "dir": "environment",
+    "install": ["npm", "install"],
+    "allow_internet": false
+  },
+  "tests": {
+    "public": "tests/public",
+    "hidden": "tests/hidden"
+  },
+  "solution": {
+    "patch": "solution/patch.diff"
+  },
+  "editable_paths": ["src/**"],
+  "protected_paths": ["tests/**", "solution/**", "vitest.config.ts", "package.json"],
+  "verifier": {
+    "cmd": ["npx", "vitest", "run", "{tests}", "--reporter=json", "--outputFile={report}"],
+    "report": "vitest-json",
+    "timeout_sec": 120
+  },
+  "agent": {
+    "timeout_sec": 600
+  },
+  "est_minutes": 15
+}
